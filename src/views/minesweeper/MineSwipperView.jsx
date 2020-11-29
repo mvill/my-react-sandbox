@@ -1,25 +1,16 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { initGrid } from '../../store/actions/mineSweeperViewActions';
+import { initRevealedGrid } from '../../store/actions/mineSweeperViewActions';
 import Grid from './Grid';
 
 const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
 
-const MineSwipperView = () => {
-
-  const dispatch = useDispatch();
-  // const cpt = useSelector((state) => state.cptView.cpt);
-  // const dispatch = useDispatch();
-
-  const nbLines = 9;
-  const nbCols = 9;
-  const nbMines = 10;
-
+function initGrid(width, height, nbMines) {
   // init grid
   const grid = [];
-  for (let i = 0; i < nbLines; i += 1) {
+  for (let i = 0; i < height; i += 1) {
     const line = [];
-    for (let j = 0; j < nbCols; j += 1) {
+    for (let j = 0; j < width; j += 1) {
       line.push({
         mine: false,
         nbMinesAround: 0,
@@ -32,8 +23,8 @@ const MineSwipperView = () => {
   for (let i = 0; i < nbMines; i += 1) {
     let done = false;
     while (!done) {
-      const randomX = getRandomInt(nbCols);
-      const randomY = getRandomInt(nbLines);
+      const randomX = getRandomInt(width);
+      const randomY = getRandomInt(height);
       const randomCell = grid[randomY][randomX];
       if (!randomCell.mine) {
         randomCell.mine = true;
@@ -43,8 +34,8 @@ const MineSwipperView = () => {
   }
 
   // nbMinesAround
-  for (let y = 0; y < nbLines; y += 1) {
-    for (let x = 0; x < nbCols; x += 1) {
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
       let nbMinesAround = 0;
       if (y > 0) {
         // up left
@@ -56,7 +47,7 @@ const MineSwipperView = () => {
         nbMinesAround += grid[y - 1][x].mine ? 1 : 0;
 
         // up right
-        if (x < nbLines - 1) {
+        if (x < width - 1) {
           nbMinesAround += grid[y - 1][x + 1].mine ? 1 : 0;
         }
       }
@@ -66,11 +57,11 @@ const MineSwipperView = () => {
         nbMinesAround += grid[y][x - 1].mine ? 1 : 0;
       }
       // right
-      if (x < nbLines - 1) {
+      if (x < width - 1) {
         nbMinesAround += grid[y][x + 1].mine ? 1 : 0;
       }
 
-      if (y < nbLines - 1) {
+      if (y < height - 1) {
         // down left
         if (x > 0) {
           nbMinesAround += grid[y + 1][x - 1].mine ? 1 : 0;
@@ -80,7 +71,7 @@ const MineSwipperView = () => {
         nbMinesAround += grid[y + 1][x].mine ? 1 : 0;
 
         // down right
-        if (x < nbLines - 1) {
+        if (x < width - 1) {
           nbMinesAround += grid[y + 1][x + 1].mine ? 1 : 0;
         }
       }
@@ -89,15 +80,40 @@ const MineSwipperView = () => {
     }
   }
 
+  return grid;
+}
+
+const MineSwipperView = () => {
+  // const revealedGrid = useSelector((state) => state.mineSweeper);
+  const dispatch = useDispatch();
+  // const cpt = useSelector((state) => state.cptView.cpt);
+  // const dispatch = useDispatch();
+
+  /*
+  const height = 2;
+  const width = 5;
+  const nbMines = 3;
+  */
+  const height = 9;
+  const width = 9;
+  const nbMines = 10;
+
+  const grid = initGrid(width, height, nbMines);
+
   useEffect(() => {
-    dispatch(initGrid(nbCols, nbLines));
-  }, [dispatch]);
+    dispatch(initRevealedGrid(width, height));
+    return () => {
+      alert('TODO unmount MineSwipperView');
+    }
+  }, []);
 
   const ready = useSelector((state) => state.mineSweeper.ready);
 
   return (
     <div>
-      {ready && <Grid grid={grid} />}
+      {
+        ready && (<Grid grid={grid} />)
+      }
     </div>
   );
 };
