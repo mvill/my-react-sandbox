@@ -1,5 +1,6 @@
 import CptView from './views/cpt/CptView';
 import HomeView from './views/home/Home';
+import MineSwipperView from './views/minesweeper/MineSwipperView';
 
 const routes = [
   {
@@ -9,6 +10,10 @@ const routes = [
   {
     path: '/cpt',
     component: CptView,
+  },
+  {
+    path: '/minesweeper',
+    component: MineSwipperView,
   },
 ];
 
