@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { increment } from '../store/actions/cptViewActions';
+import { increment } from '../../store/actions/cptViewActions';
 
 const CptView = () => {
   const cpt = useSelector((state) => state.cptView.cpt);
