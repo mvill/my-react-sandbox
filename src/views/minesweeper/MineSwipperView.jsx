@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { initRevealedGrid } from '../../store/actions/mineSweeperViewActions';
+import { initInfoGrid } from '../../store/actions/mineSweeperViewActions';
 import Grid from './Grid';
 
 const getRandomInt = (max) => Math.floor(Math.random() * Math.floor(max));
@@ -101,9 +101,9 @@ const MineSwipperView = () => {
   const grid = initGrid(width, height, nbMines);
 
   useEffect(() => {
-    dispatch(initRevealedGrid(width, height));
+    dispatch(initInfoGrid(width, height));
     return () => {
-      alert('TODO unmount MineSwipperView');
+      // alert('TODO unmount MineSwipperView');
     }
   }, []);
 

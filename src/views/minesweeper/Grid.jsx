@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import React, { Fragment } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { revealCell } from '../../store/actions/mineSweeperViewActions';
+import { setInfoCell } from '../../store/actions/mineSweeperViewActions';
 
 const COLOR_MAP = {
   0: 'gray',
@@ -24,10 +24,41 @@ const getCellColor = (cell) => {
 }
 
 const Grid = ({ grid }) => {
-  const revealedGrid = useSelector((state) => state.mineSweeper.revealedGrid);
+  const infoGrid = useSelector((state) => state.mineSweeper.infoGrid);
   const dispatch = useDispatch();
 
-  function handleCellClick(x0, y0) {
+
+
+
+  function onContextMenu(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+  }
+
+  function onMouseUp(evt, x, y) {
+    const { nativeEvent } = evt;
+    if (nativeEvent.buttons > 0) {
+      alert('TODO both click');
+    } else {
+      if (nativeEvent.which === 1) {
+        doCellLeftClick(x, y);
+      } else if (nativeEvent.which === 3) {
+        doCellRightClick(x, y);
+      }
+    }
+  }
+
+  function doCellRightClick(x, y) {
+    const infoCell = infoGrid[y][x];
+    if (!infoCell.revealed) {
+      dispatch(setInfoCell(x, y, {
+        ...infoCell,
+        flagged: !infoCell.flagged,
+      }));
+    }
+  }
+
+  function doCellLeftClick(x0, y0) {
     const cellsToReveal = [];
     const doRevealCell = (x, y) => {
       if (
@@ -42,7 +73,7 @@ const Grid = ({ grid }) => {
         return;
       }
       const cell = grid[y][x];
-      const { revealed } = revealedGrid[y][x];
+      const { revealed } = infoGrid[y][x];
       if (revealed) {
         return;
       }
@@ -61,13 +92,17 @@ const Grid = ({ grid }) => {
     };
     doRevealCell(x0, y0);
     cellsToReveal.forEach((cell) => {
-      dispatch(revealCell(cell.x, cell.y));
+      const infoCell = infoGrid[cell.y][cell.x];
+      dispatch(setInfoCell(cell.x, cell.y, {
+        ...infoCell,
+        revealed: true,
+      }));
     });
   }
 
   function renderCell(x, y) {
     const cell = grid[y][x];
-    const { revealed } = revealedGrid[y][x];
+    const { revealed, flagged } = infoGrid[y][x];
     return (
       <td
         key={`cell-${x}-${y}`}
@@ -79,15 +114,18 @@ const Grid = ({ grid }) => {
           fontWeight: '800',
           color: getCellColor(cell),
         }}
-        onClick={() => handleCellClick(x, y)}
+        onContextMenu={onContextMenu}
+        onMouseUp={(evt) =>  onMouseUp(evt, x, y)}
       >
         {
-          revealed && (
+          revealed ? (
             <>
               {cell.mine && '*'}
               {!cell.mine && cell.nbMinesAround}
             </>
-          )
+          ) : (
+              flagged && 'P'
+            )
         }
       </td>
     )
